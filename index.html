@@ -1,714 +1,696 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=2.0, minimum-scale=0.5, viewport-fit=cover">
-  <title>Guess Who? – Classic Edition</title>
-  <style>
-    :root {
-      /* Default Board Colors (Will be overridden by JS) */
-      --board-color: #376BD6; 
-      --board-border-color: #224796;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=2.0, minimum-scale=0.5, viewport-fit=cover">
+    <title>Guess Who? – Classic Edition</title>
+    <style>
+        :root {
+            --board-color: #376BD6;
+            --board-border-color: #224796;
+        }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-    }
-    body {
-      background: #e6edf2;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100dvh;
-      padding: 8px;
-      margin: 0;
-      overflow: hidden;
-    }
-    #app {
-      width: 100%;
-      max-width: 750px;
-      background: #f5efe0;
-      border-radius: 2rem;
-      padding: 1rem 1.2rem;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-      border: 3px solid #b9945c;
-      display: flex;
-      flex-direction: column;
-      height: 98dvh;
-      overflow: hidden;
-    }
-    
-    /* HEADER */
-    .app-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 3.5rem; 
-      margin-bottom: 0.8rem;
-      flex-shrink: 0;
-      gap: 0.5rem;
-    }
-    
-    h1 {
-      font-weight: 800;
-      font-size: clamp(1.4rem, 5vw, 2.2rem);
-      color: #4a2c1a;
-      letter-spacing: 1px;
-      text-shadow: 2px 2px 0 #e7cba5;
-      margin: 0;
-      line-height: 1;
-      white-space: nowrap;
-    }
-    
-    .header-controls {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      justify-content: flex-end;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+        body {
+            background: #e6edf2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100dvh;
+            padding: 8px;
+            margin: 0;
+            overflow: hidden;
+        }
+        #app {
+            width: 100%;
+            max-width: 750px;
+            background: transparent;
+            border-radius: 0;
+            padding: 1rem 1.2rem;
+            box-shadow: none;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            height: 98dvh;
+            overflow: hidden;
+        }
 
-    #headerPlayerLabel {
-      font-size: clamp(0.7rem, 2.5vw, 0.9rem);
-      font-weight: bold;
-      background: var(--board-color); 
-      color: #ffffff;
-      padding: 0.3rem 0.8rem;
-      border-radius: 2rem;
-      border: 3px solid var(--board-border-color);
-      box-shadow: 0 3px 0 var(--board-border-color);
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-      display: none; 
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-    #headerPlayerLabel.active {
-      display: inline-block;
-    }
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 3.5rem;
+            margin-bottom: 0.8rem;
+            flex-shrink: 0;
+            gap: 0.5rem;
+        }
 
-    #btnConfirmSecret {
-      background: #4e6c4b;
-      color: white;
-      font-weight: bold;
-      font-size: clamp(0.7rem, 2.5vw, 0.9rem);
-      padding: 0.3rem 0.8rem;
-      border-radius: 2rem;
-      border: 3px solid #2b3d2a;
-      cursor: pointer;
-      box-shadow: 0 3px 0 #1f2e1e;
-      transition: 0.08s ease;
-      letter-spacing: 0.5px;
-      display: none;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-    #btnConfirmSecret.active {
-      display: inline-block;
-    }
-    #btnConfirmSecret:active {
-      transform: translateY(3px);
-      box-shadow: 0 0px 0 #1f2e1e;
-    }
-    #btnConfirmSecret:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: 0 3px 0 #1f2e1e;
-    }
+        h1 {
+            font-weight: 800;
+            font-size: clamp(1.4rem, 5vw, 2.2rem);
+            color: #4a2c1a;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 0 #e7cba5;
+            margin: 0;
+            line-height: 1;
+            white-space: nowrap;
+        }
 
-    .home-btn {
-      background: none;
-      border: none;
-      font-size: 1.8rem;
-      cursor: pointer;
-      padding: 0.2rem 0.4rem;
-      border-radius: 2rem;
-      background: rgba(255,255,255,0.8);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      line-height: 1;
-      transition: transform 0.1s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .home-btn:active {
-      transform: scale(0.9);
-    }
-    
-    .screen {
-      display: none;
-      flex: 1;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    .screen.active {
-      display: flex;
-      flex-direction: column;
-    }
-    
-    /* MODIFIED MAIN MENU */
-    .menu-card {
-      background: #fef7e6;
-      border-radius: 1.8rem;
-      padding: 1.5rem 1.2rem;
-      box-shadow: inset 0 0 15px #fae3c5;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    .menu-section-title {
-      font-weight: 800;
-      margin-bottom: 0.8rem;
-      color: #4b3823;
-      text-align: center;
-      font-size: 1.2rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            justify-content: flex-end;
+        }
 
-    .topic-buttons {
-      display: flex;
-      gap: 0.8rem;
-      justify-content: center;
-      margin-bottom: 1.5rem;
-      width: 100%
-    }
+        #headerPlayerLabel {
+            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+            font-weight: bold;
+            background: var(--board-color);
+            color: #ffffff;
+            padding: 0.3rem 0.8rem;
+            border-radius: 2rem;
+            border: 3px solid var(--board-border-color);
+            box-shadow: 0 3px 0 var(--board-border-color);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            display: none;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        #headerPlayerLabel.active {
+            display: inline-block;
+        }
 
-    .topic-btn {
-      flex: 1;
-      background: #ffffff;
-      border: 3px solid #b9945c;
-      border-radius: 1rem;
-      padding: 0.8rem 0.2rem;
-      font-size: clamp(0.8rem, 2.5vw, 1.1rem);
-      font-weight: bold;
-      color: #3d2b1a;
-      cursor: pointer;
-      transition: all 0.1s ease;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.4rem;
-      box-shadow: 0 4px 0 #b9945c;
-    }
-    .topic-btn .emoji {
-      font-size: clamp(1.8rem, 6vw, 2.5rem);
-    }
-    .topic-btn:active {
-      transform: translateY(4px);
-      box-shadow: 0 0px 0 #b9945c;
-    }
-    
-    .topic-btn.selected {
-      background: #f5b042;
-      border-color: #c78622;
-      color: #ffffff;
-      box-shadow: 0 4px 0 #c78622, inset 0 0 0 3px rgba(255,255,255,0.4);
-      text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
-    }
-    .topic-buttons.has-selection .topic-btn:not(.selected) {
-      opacity: 0.5;
-      background: #eae1cd;
-      border-color: #c4b497;
-      box-shadow: 0 4px 0 #c4b497;
-    }
+        #btnConfirmSecret {
+            background: #4e6c4b;
+            color: white;
+            font-weight: bold;
+            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+            padding: 0.3rem 0.8rem;
+            border-radius: 2rem;
+            border: 3px solid #2b3d2a;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #1f2e1e;
+            transition: 0.08s ease;
+            letter-spacing: 0.5px;
+            display: none;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        #btnConfirmSecret.active {
+            display: inline-block;
+        }
+        #btnConfirmSecret:active {
+            transform: translateY(3px);
+            box-shadow: 0 0px 0 #1f2e1e;
+        }
+        #btnConfirmSecret:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 3px 0 #1f2e1e;
+        }
 
-    .player-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      justify-content: center;
-      margin-bottom: 1.5rem;
-      width: 100%
-    }
+        .home-btn {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            padding: 0.2rem 0.4rem;
+            border-radius: 2rem;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            line-height: 1;
+            transition: transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .home-btn:active {
+            transform: scale(0.9);
+        }
 
-    .player-btn {
-      flex: 1;
-      padding: 1.2rem 0.5rem;
-      font-size: clamp(1rem, 3.5vw, 1.4rem);
-      font-weight: bold;
-      border-radius: 3rem;
-      border: none;
-      color: #ffffff;
-      letter-spacing: 1px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      text-transform: uppercase;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
-      
-    }
-    #btnPlayerA {
-      background: #376BD6;
-      border: 3px solid #224796;
-      box-shadow: 0 6px 0 #1b3878;
-    }
-    #btnPlayerB {
-      background: #F22F15;
-      border: 3px solid #a81e0d;
-      box-shadow: 0 6px 0 #851609;
-    }
-    .player-btn:active {
-      transform: translateY(4px) !important;
-      box-shadow: 0 2px 0 rgba(0,0,0,0.5) !important;
-    }
-    
-    .player-btn.selected {
-      transform: scale(1.05);
-      box-shadow: 0 8px 0 rgba(0,0,0,0.4), inset 0 0 0 4px rgba(255,255,255,0.4) !important;
-    }
-    .player-buttons.has-selection .player-btn:not(.selected) {
-      opacity: 0.4;
-      filter: grayscale(0.5);
-    }
+        .screen {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
 
-    #btnStartGame {
-      background: #4e6c4b;
-      color: white;
-      font-weight: 800;
-      font-size: 1.4rem;
-      padding: 1rem;
-      border-radius: 3rem;
-      border: 4px solid #2b3d2a;
-      cursor: pointer;
-      box-shadow: 0 6px 0 #1f2e1e;
-      width: 100%;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      transition: all 0.1s ease;
-    }
-    #btnStartGame:active:not(:disabled) {
-      transform: translateY(4px);
-      box-shadow: 0 2px 0 #1f2e1e;
-    }
-    #btnStartGame:disabled {
-      background: #99a897;
-      border-color: #728271;
-      box-shadow: 0 6px 0 #728271;
-      color: #e0e0e0;
-      cursor: not-allowed;
-      transform: none;
-    }
+        .menu-card {
+            background: #fef7e6;
+            border-radius: 1.8rem;
+            padding: 1.5rem 1.2rem;
+            box-shadow: inset 0 0 15px #fae3c5;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
 
-    /* INSTRUCTIONS */
-    .instruction-prompt {
-      background: #fbe9d2;
-      border-radius: 1rem;
-      padding: 0.5rem;
-      text-align: center;
-      margin-bottom: 0.8rem;
-      border: 3px dashed #b77c44;
-      font-weight: bold;
-      font-size: clamp(0.85rem, 2.5vw, 1.1rem);
-      color: #4e3621;
-      flex-shrink: 0;
-      height: 3.8rem; 
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 1.2;
-    }
-    
-    /* SQUARED BOARD GRID */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      grid-template-rows: repeat(4, 1fr);
-      gap: 4px; 
-      background: var(--board-border-color); 
-      padding: 8px; 
-      border-radius: 1.2rem;
-      border: 6px solid var(--board-border-color); 
-      flex: 1;
-      align-content: center; 
-      box-shadow: 0 8px 16px rgba(0,0,0,0.2), inset 0 6px 10px rgba(0,0,0,0.4);
-      min-height: 0; 
-      overflow: hidden;
-    }
-    
-    /* SQUARED TILE CARDS */
-    .card {
-      aspect-ratio: 1 / 1; 
-      background: #faedda; 
-      border-radius: 0.5rem; 
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: transform 0.1s ease, filter 0.1s ease;
-      box-shadow: inset 0 -4px 0px rgba(180, 150, 110, 0.25), 0 2px 2px rgba(0,0,0,0.1); 
-      user-select: none;
-      position: relative;
-      overflow: hidden;
-      width: 100%;
-      height: 100%;
-    }
-    
-    .card:hover {
-      filter: brightness(0.96);
-    }
-    
-    .card:active {
-      transform: scale(0.95);
-    }
+        .menu-section-title {
+            font-weight: 800;
+            margin-bottom: 0.8rem;
+            color: #4b3823;
+            text-align: center;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-    .card span {
-      font-weight: 700;
-      text-align: center;
-      color: #3b2c1a;
-      line-height: 1.1;
-      text-transform: capitalize;
-      pointer-events: none;
-    }
-    .card span:first-child {
-      font-size: clamp(2rem, 8vw, 3.5rem); 
-      margin-bottom: 2px;
-    }
-    .card span:last-child {
-      font-size: clamp(0.6rem, 2.5vw, 1rem); 
-    }
-    
-    /* WHITE EMPTY SLOT */
-    .card.flipped {
-      background: #ffffff;
-      box-shadow: inset 0 4px 10px rgba(0,0,0,0.4); 
-      transform: scale(0.94); 
-      color: transparent;
-      border: none;
-    }
-    .card.flipped span {
-      visibility: hidden;
-    }
-    
-    .card.secret-card {
-      background: #fff9ea;
-      box-shadow: inset 0 0 0 3px #f5b042, inset 0 -4px 0px rgba(180, 150, 110, 0.25);
-      cursor: default;
-    }
-    .card.secret-card::before {
-      content: "⭐";
-      position: absolute;
-      top: 2px;
-      right: 2px;
-      font-size: clamp(1rem, 3vw, 1.4rem);
-      filter: drop-shadow(0 0 2px gold);
-      z-index: 2;
-    }
-  </style>
+        .topic-buttons {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            width: 100%;
+        }
+
+        .topic-btn {
+            flex: 1;
+            background: #ffffff;
+            border: 3px solid #b9945c;
+            border-radius: 1rem;
+            padding: 0.8rem 0.2rem;
+            font-size: clamp(0.8rem, 2.5vw, 1.1rem);
+            font-weight: bold;
+            color: #3d2b1a;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+            box-shadow: 0 4px 0 #b9945c;
+        }
+        .topic-btn .emoji {
+            font-size: clamp(1.8rem, 6vw, 2.5rem);
+        }
+        .topic-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 #b9945c;
+        }
+
+        .topic-btn.selected {
+            background: #f5b042;
+            border-color: #c78622;
+            color: #ffffff;
+            box-shadow: 0 4px 0 #c78622, inset 0 0 0 3px rgba(255, 255, 255, 0.4);
+            text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
+        }
+        .topic-buttons.has-selection .topic-btn:not(.selected) {
+            opacity: 0.5;
+            background: #eae1cd;
+            border-color: #c4b497;
+            box-shadow: 0 4px 0 #c4b497;
+        }
+
+        .player-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            width: 100%;
+        }
+
+        .player-btn {
+            flex: 1;
+            padding: 1.2rem 0.5rem;
+            font-size: clamp(1rem, 3.5vw, 1.4rem);
+            font-weight: bold;
+            border-radius: 3rem;
+            border: none;
+            color: #ffffff;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-transform: uppercase;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+        }
+        #btnPlayerA {
+            background: #376BD6;
+            border: 3px solid #224796;
+            box-shadow: 0 6px 0 #1b3878;
+        }
+        #btnPlayerB {
+            background: #F22F15;
+            border: 3px solid #a81e0d;
+            box-shadow: 0 6px 0 #851609;
+        }
+        .player-btn:active {
+            transform: translateY(4px) !important;
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5) !important;
+        }
+
+        .player-btn.selected {
+            transform: scale(1.05);
+            box-shadow: 0 8px 0 rgba(0, 0, 0, 0.4), inset 0 0 0 4px rgba(255, 255, 255, 0.4) !important;
+        }
+        .player-buttons.has-selection .player-btn:not(.selected) {
+            opacity: 0.4;
+            filter: grayscale(0.5);
+        }
+
+        #btnStartGame {
+            background: #4e6c4b;
+            color: white;
+            font-weight: 800;
+            font-size: 1.4rem;
+            padding: 1rem;
+            border-radius: 3rem;
+            border: 4px solid #2b3d2a;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #1f2e1e;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.1s ease;
+        }
+        #btnStartGame:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #1f2e1e;
+        }
+        #btnStartGame:disabled {
+            background: #99a897;
+            border-color: #728271;
+            box-shadow: 0 6px 0 #728271;
+            color: #e0e0e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .instruction-prompt {
+            background: #fbe9d2;
+            border-radius: 1rem;
+            padding: 0.5rem;
+            text-align: center;
+            margin-bottom: 0.8rem;
+            border: 3px dashed #b77c44;
+            font-weight: bold;
+            font-size: clamp(0.85rem, 2.5vw, 1.1rem);
+            color: #4e3621;
+            flex-shrink: 0;
+            height: 3.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.2;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 4px;
+            background: var(--board-border-color);
+            padding: 8px;
+            border-radius: 1.2rem;
+            border: 6px solid var(--board-border-color);
+            flex: 1;
+            align-content: center;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), inset 0 6px 10px rgba(0, 0, 0, 0.4);
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .card {
+            aspect-ratio: 1 / 1;
+            background: #faedda;
+            border-radius: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.1s ease, filter 0.1s ease;
+            box-shadow: inset 0 -4px 0px rgba(180, 150, 110, 0.25), 0 2px 2px rgba(0, 0, 0, 0.1);
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+        }
+
+        .card:hover {
+            filter: brightness(0.96);
+        }
+
+        .card:active {
+            transform: scale(0.95);
+        }
+
+        .card span {
+            font-weight: 700;
+            text-align: center;
+            color: #3b2c1a;
+            line-height: 1.1;
+            text-transform: capitalize;
+            pointer-events: none;
+        }
+        .card span:first-child {
+            font-size: clamp(2rem, 8vw, 3.5rem);
+            margin-bottom: 2px;
+        }
+        .card span:last-child {
+            font-size: clamp(0.6rem, 2.5vw, 1rem);
+        }
+
+        .card.flipped {
+            background: #ffffff;
+            box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.4);
+            transform: scale(0.94);
+            color: transparent;
+            border: none;
+        }
+        .card.flipped span {
+            visibility: hidden;
+        }
+
+        .card.secret-card {
+            background: #fff9ea;
+            box-shadow: inset 0 0 0 3px #f5b042, inset 0 -4px 0px rgba(180, 150, 110, 0.25);
+            cursor: default;
+        }
+        .card.secret-card::before {
+            content: "⭐";
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: clamp(1rem, 3vw, 1.4rem);
+            filter: drop-shadow(0 0 2px gold);
+            z-index: 2;
+        }
+    </style>
 </head>
 <body>
-<div id="app">
-  <div class="app-header">
-    <h1>🔍 Guess Who?</h1>
-    <div class="header-controls">
-      <span id="headerPlayerLabel">Player A</span>
-      <button id="btnConfirmSecret" disabled>✅ Confirm</button>
-      <button class="home-btn" id="homeButton" title="Back to menu">🏠</button>
+    <div id="app">
+        <div class="app-header">
+            <h1>🔍 Guess Who?</h1>
+            <div class="header-controls">
+                <span id="headerPlayerLabel">Player A</span>
+                <button id="btnConfirmSecret" disabled>✅ Confirm</button>
+                <button class="home-btn" id="homeButton" title="Back to menu">🏠</button>
+            </div>
+        </div>
+
+        <div id="menuScreen" class="screen active">
+            <div class="menu-card">
+                <div class="menu-section-title">1. Select Player</div>
+                <div class="player-buttons" id="playerContainer">
+                    <button id="btnPlayerA" class="player-btn" data-player="A">Player A</button>
+                    <button id="btnPlayerB" class="player-btn" data-player="B">Player B</button>
+                </div>
+
+                <div class="menu-section-title">2. Select Topic</div>
+                <div class="topic-buttons" id="topicContainer">
+                    <button class="topic-btn" data-topic="occupations">
+                        <span class="emoji">👷</span>
+                        <span>Occupations</span>
+                    </button>
+                    <button class="topic-btn" data-topic="fruits">
+                        <span class="emoji">🍎</span>
+                        <span>Fruits</span>
+                    </button>
+                    <button class="topic-btn" data-topic="animals">
+                        <span class="emoji">🐾</span>
+                        <span>Animals</span>
+                    </button>
+                </div>
+
+                <button id="btnStartGame" disabled>🚀 Start Game</button>
+
+                <div style="font-size: 0.85rem; color: #5c4a33; margin-top: 1rem; text-align: center; font-weight: 500;">
+                    (Both players must choose the same topic on their own device)
+                </div>
+            </div>
+        </div>
+
+        <div id="secretSelectScreen" class="screen">
+            <div class="instruction-prompt">
+                👆 Tap a card to choose YOUR secret character
+            </div>
+            <div id="secretGrid" class="grid"></div>
+        </div>
+
+        <div id="boardScreen" class="screen">
+            <div class="instruction-prompt">
+                Tap to flip eliminated cards.<br>Your secret ⭐ cannot be flipped.
+            </div>
+            <div id="boardGrid" class="grid"></div>
+        </div>
     </div>
-  </div>
 
-  <div id="menuScreen" class="screen active">
-    <div class="menu-card">
+    <script>
+        (function() {
+            const TOPICS = {
+                occupations: [
+                    { emoji: "🎓", name: "student" },
+                    { emoji: "🔬", name: "scientist" },
+                    { emoji: "💼", name: "businessperson" },
+                    { emoji: "👨🏻‍🏫", name: "teacher" },
+                    { emoji: "🔪", name: "chef" },
+                    { emoji: "🩺", name: "doctor" },
+                    { emoji: "🎤", name: "singer" },
+                    { emoji: "🧯", name: "firefighter" },
+                    { emoji: "⚖️", name: "lawyer" },
+                    { emoji: "🚓", name: "police officer" },
+                    { emoji: "💉", name: "nurse" },
+                    { emoji: "⚙️", name: "engineer" },
+                    { emoji: "🎭", name: "actor" },
+                    { emoji: "🦷", name: "dentist" },
+                    { emoji: "🍎", name: "nutritionist" },
+                    { emoji: "✈️", name: "pilot" },
+                    { emoji: "🔧", name: "mechanic" },
+                    { emoji: "📏", name: "architect" },
+                    { emoji: "🧹", name: "cleaner" },
+                    { emoji: "🐾", name: "vet" }
+                ],
+                fruits: [
+                    { emoji: "🍎", name: "apple" }, { emoji: "🍌", name: "banana" },
+                    { emoji: "🍇", name: "grapes" }, { emoji: "🍊", name: "orange" },
+                    { emoji: "🍓", name: "strawberry" }, { emoji: "🍒", name: "cherry" },
+                    { emoji: "🍑", name: "peach" }, { emoji: "🥝", name: "kiwi" },
+                    { emoji: "🍍", name: "pineapple" }, { emoji: "🥭", name: "mango" },
+                    { emoji: "🍋", name: "lemon" }, { emoji: "🍐", name: "pear" },
+                    { emoji: "🍈", name: "melon" }, { emoji: "🍉", name: "watermelon" },
+                    { emoji: "🥥", name: "coconut" }, { emoji: "🍅", name: "tomato" },
+                    { emoji: "🍆", name: "eggplant" }, { emoji: "🥑", name: "avocado" },
+                    { emoji: "🥦", name: "broccoli" }, { emoji: "🥒", name: "cucumber" }
+                ],
+                animals: [
+                    { emoji: "🐕", name: "dog" }, { emoji: "🐈", name: "cat" },
+                    { emoji: "🐎", name: "horse" }, { emoji: "🐄", name: "cow" },
+                    { emoji: "🐖", name: "pig" }, { emoji: "🐑", name: "sheep" },
+                    { emoji: "🐐", name: "goat" }, { emoji: "🐓", name: "rooster" },
+                    { emoji: "🐇", name: "rabbit" }, { emoji: "🐿️", name: "squirrel" },
+                    { emoji: "🐘", name: "elephant" }, { emoji: "🦒", name: "giraffe" },
+                    { emoji: "🦓", name: "zebra" }, { emoji: "🐅", name: "tiger" },
+                    { emoji: "🐆", name: "leopard" }, { emoji: "🦁", name: "lion" },
+                    { emoji: "🐻", name: "bear" }, { emoji: "🐼", name: "panda" },
+                    { emoji: "🐨", name: "koala" }, { emoji: "🐒", name: "monkey" }
+                ]
+            };
 
-    <div class="menu-section-title">1. Select Player</div>
-    <div class="player-buttons" id="playerContainer">
-    <button id="btnPlayerA" class="player-btn" data-player="A">Player A</button>
-    <button id="btnPlayerB" class="player-btn" data-player="B">Player B</button>
-  </div>
+            const state = {
+                items: [],
+                secretIndex: -1,
+                boardOrder: [],
+                flipped: [],
+                secretSelected: false
+            };
 
-    <div class="menu-section-title">2. Select Topic</div>
-    <div class="topic-buttons" id="topicContainer">
-    <button class="topic-btn" data-topic="occupations">
-      <span class="emoji">👷</span>
-      <span>Occupations</span>
-    </button>
-    <button class="topic-btn" data-topic="fruits">
-      <span class="emoji">🍎</span>
-      <span>Fruits</span>
-    </button>
-    <button class="topic-btn" data-topic="animals">
-      <span class="emoji">🐾</span>
-      <span>Animals</span>
-    </button>
-  </div>
+            let menuSelectedTopic = null;
+            let menuSelectedPlayer = null;
 
-      <button id="btnStartGame" disabled>🚀 Start Game</button>
-      
-      <div style="font-size: 0.85rem; color: #5c4a33; margin-top: 1rem; text-align: center; font-weight: 500;">
-        (Both players must choose the same topic on their own device)
-      </div>
-    </div>
-  </div>
+            const menuScreen = document.getElementById('menuScreen');
+            const secretSelectScreen = document.getElementById('secretSelectScreen');
+            const boardScreen = document.getElementById('boardScreen');
 
-  <div id="secretSelectScreen" class="screen">
-    <div class="instruction-prompt">
-      👆 Tap a card to choose YOUR secret character
-    </div>
-    <div id="secretGrid" class="grid"></div>
-  </div>
+            const topicContainer = document.getElementById('topicContainer');
+            const topicBtns = document.querySelectorAll('.topic-btn');
+            const playerContainer = document.getElementById('playerContainer');
+            const playerBtns = document.querySelectorAll('.player-btn');
+            const btnStartGame = document.getElementById('btnStartGame');
 
-  <div id="boardScreen" class="screen">
-    <div class="instruction-prompt">
-      Tap to flip eliminated cards.<br>Your secret ⭐ cannot be flipped.
-    </div>
-    <div id="boardGrid" class="grid"></div>
-  </div>
-</div>
+            const btnConfirmSecret = document.getElementById('btnConfirmSecret');
+            const headerPlayerLabel = document.getElementById('headerPlayerLabel');
+            const secretGrid = document.getElementById('secretGrid');
+            const boardGrid = document.getElementById('boardGrid');
+            const homeButton = document.getElementById('homeButton');
 
-<script>
-  (function() {
-    // ---------- TOPIC DATA ----------
-    const TOPICS = {
-      occupations: [
-        { emoji: "🎓", name: "student" },
-        { emoji: "🔬", name: "scientist" },
-        { emoji: "💼", name: "businessperson" },
-        { emoji: "👨🏻‍🏫", name: "teacher" },
-        { emoji: "🔪", name: "chef" },
-        { emoji: "🩺", name: "doctor" },
-        { emoji: "🎤", name: "singer" },
-        { emoji: "🧯", name: "firefighter" },
-        { emoji: "⚖️", name: "lawyer" },
-        { emoji: "🚓", name: "police officer" },
-        { emoji: "💉", name: "nurse" },
-        { emoji: "⚙️", name: "engineer" },
-        { emoji: "🎭", name: "actor" },
-        { emoji: "🦷", name: "dentist" },
-        { emoji: "🍎", name: "nutritionist" },
-        { emoji: "✈️", name: "pilot" },
-        { emoji: "🔧", name: "mechanic" },
-        { emoji: "📏", name: "architect" },
-        { emoji: "🧹", name: "cleaner" },
-        { emoji: "🐾", name: "vet" }
-      ],
-      fruits: [
-        { emoji: "🍎", name: "apple" }, { emoji: "🍌", name: "banana" },
-        { emoji: "🍇", name: "grapes" }, { emoji: "🍊", name: "orange" },
-        { emoji: "🍓", name: "strawberry" }, { emoji: "🍒", name: "cherry" },
-        { emoji: "🍑", name: "peach" }, { emoji: "🥝", name: "kiwi" },
-        { emoji: "🍍", name: "pineapple" }, { emoji: "🥭", name: "mango" },
-        { emoji: "🍋", name: "lemon" }, { emoji: "🍐", name: "pear" },
-        { emoji: "🍈", name: "melon" }, { emoji: "🍉", name: "watermelon" },
-        { emoji: "🥥", name: "coconut" }, { emoji: "🍅", name: "tomato" },
-        { emoji: "🍆", name: "eggplant" }, { emoji: "🥑", name: "avocado" },
-        { emoji: "🥦", name: "broccoli" }, { emoji: "🥒", name: "cucumber" }
-      ],
-      animals: [
-        { emoji: "🐕", name: "dog" }, { emoji: "🐈", name: "cat" },
-        { emoji: "🐎", name: "horse" }, { emoji: "🐄", name: "cow" },
-        { emoji: "🐖", name: "pig" }, { emoji: "🐑", name: "sheep" },
-        { emoji: "🐐", name: "goat" }, { emoji: "🐓", name: "rooster" },
-        { emoji: "🐇", name: "rabbit" }, { emoji: "🐿️", name: "squirrel" },
-        { emoji: "🐘", name: "elephant" }, { emoji: "🦒", name: "giraffe" },
-        { emoji: "🦓", name: "zebra" }, { emoji: "🐅", name: "tiger" },
-        { emoji: "🐆", name: "leopard" }, { emoji: "🦁", name: "lion" },
-        { emoji: "🐻", name: "bear" }, { emoji: "🐼", name: "panda" },
-        { emoji: "🐨", name: "koala" }, { emoji: "🐒", name: "monkey" }
-      ]
-    };
+            function shuffleArray(arr) {
+                for (let i = arr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                }
+                return arr;
+            }
 
-    // ---------- GAME STATE ----------
-    const state = {
-      items: [],
-      secretIndex: -1,
-      boardOrder: [],
-      flipped: [],
-      secretSelected: false
-    };
+            function getShuffledIndices(len) {
+                const indices = Array.from({ length: len }, (_, i) => i);
+                return shuffleArray(indices);
+            }
 
-    let menuSelectedTopic = null;
-    let menuSelectedPlayer = null;
+            function showScreen(screen) {
+                menuScreen.classList.remove('active');
+                secretSelectScreen.classList.remove('active');
+                boardScreen.classList.remove('active');
+                screen.classList.add('active');
+            }
 
-    // UI elements
-    const menuScreen = document.getElementById('menuScreen');
-    const secretSelectScreen = document.getElementById('secretSelectScreen');
-    const boardScreen = document.getElementById('boardScreen');
-    
-    const topicContainer = document.getElementById('topicContainer');
-    const topicBtns = document.querySelectorAll('.topic-btn');
-    const playerContainer = document.getElementById('playerContainer');
-    const playerBtns = document.querySelectorAll('.player-btn');
-    const btnStartGame = document.getElementById('btnStartGame');
+            function resetGameState() {
+                state.secretIndex = -1;
+                state.boardOrder = [];
+                state.flipped = [];
+                state.secretSelected = false;
+                headerPlayerLabel.classList.remove('active');
+                btnConfirmSecret.classList.remove('active');
 
-    const btnConfirmSecret = document.getElementById('btnConfirmSecret');
-    const headerPlayerLabel = document.getElementById('headerPlayerLabel');
-    const secretGrid = document.getElementById('secretGrid');
-    const boardGrid = document.getElementById('boardGrid');
-    const homeButton = document.getElementById('homeButton');
+                menuSelectedTopic = null;
+                menuSelectedPlayer = null;
+                topicContainer.classList.remove('has-selection');
+                playerContainer.classList.remove('has-selection');
+                topicBtns.forEach(btn => btn.classList.remove('selected'));
+                playerBtns.forEach(btn => btn.classList.remove('selected'));
+                checkStartReady();
+            }
 
-    // ---------- UTILS ----------
-    function shuffleArray(arr) {
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
+            function checkStartReady() {
+                if (menuSelectedTopic && menuSelectedPlayer) {
+                    btnStartGame.disabled = false;
+                } else {
+                    btnStartGame.disabled = true;
+                }
+            }
 
-    function getShuffledIndices(len) {
-      const indices = Array.from({length: len}, (_, i) => i);
-      return shuffleArray(indices);
-    }
+            topicBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    topicBtns.forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    topicContainer.classList.add('has-selection');
+                    menuSelectedTopic = btn.dataset.topic;
+                    checkStartReady();
+                });
+            });
 
-    function showScreen(screen) {
-      menuScreen.classList.remove('active');
-      secretSelectScreen.classList.remove('active');
-      boardScreen.classList.remove('active');
-      screen.classList.add('active');
-    }
+            playerBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    playerBtns.forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    playerContainer.classList.add('has-selection');
+                    menuSelectedPlayer = btn.dataset.player;
+                    checkStartReady();
+                });
+            });
 
-    function resetGameState() {
-      state.secretIndex = -1;
-      state.boardOrder = [];
-      state.flipped = [];
-      state.secretSelected = false;
-      headerPlayerLabel.classList.remove('active');
-      btnConfirmSecret.classList.remove('active');
-      
-      // Reset Menu Selections
-      menuSelectedTopic = null;
-      menuSelectedPlayer = null;
-      topicContainer.classList.remove('has-selection');
-      playerContainer.classList.remove('has-selection');
-      topicBtns.forEach(btn => btn.classList.remove('selected'));
-      playerBtns.forEach(btn => btn.classList.remove('selected'));
-      checkStartReady();
-    }
+            btnStartGame.addEventListener('click', () => {
+                if (menuSelectedTopic && menuSelectedPlayer) {
+                    openSecretSelection(menuSelectedPlayer, menuSelectedTopic);
+                }
+            });
 
-    function checkStartReady() {
-      if (menuSelectedTopic && menuSelectedPlayer) {
-        btnStartGame.disabled = false;
-      } else {
-        btnStartGame.disabled = true;
-      }
-    }
+            function openSecretSelection(playerKey, topicKey) {
+                const root = document.documentElement;
+                if (playerKey === 'A') {
+                    root.style.setProperty('--board-color', '#376BD6');
+                    root.style.setProperty('--board-border-color', '#224796');
+                } else {
+                    root.style.setProperty('--board-color', '#F22F15');
+                    root.style.setProperty('--board-border-color', '#a81e0d');
+                }
 
-    // ---------- MAIN MENU LOGIC ----------
-    topicBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        topicBtns.forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        topicContainer.classList.add('has-selection');
-        menuSelectedTopic = btn.dataset.topic;
-        checkStartReady();
-      });
-    });
+                headerPlayerLabel.textContent = `Player ${playerKey}`;
+                headerPlayerLabel.classList.add('active');
 
-    playerBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        playerBtns.forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        playerContainer.classList.add('has-selection');
-        menuSelectedPlayer = btn.dataset.player;
-        checkStartReady();
-      });
-    });
+                btnConfirmSecret.disabled = true;
+                btnConfirmSecret.classList.add('active');
 
-    btnStartGame.addEventListener('click', () => {
-      if (menuSelectedTopic && menuSelectedPlayer) {
-        openSecretSelection(menuSelectedPlayer, menuSelectedTopic);
-      }
-    });
+                state.items = TOPICS[topicKey];
+                const len = state.items.length;
+                state.boardOrder = getShuffledIndices(len);
+                state.flipped = new Array(len).fill(false);
+                state.secretIndex = -1;
+                state.secretSelected = false;
 
-    // ---------- SECRET SELECTION ----------
-    function openSecretSelection(playerKey, topicKey) {
-      // Update the board theme & Header
-      const root = document.documentElement;
-      if (playerKey === 'A') {
-        root.style.setProperty('--board-color', '#376BD6');
-        root.style.setProperty('--board-border-color', '#224796');
-      } else {
-        root.style.setProperty('--board-color', '#F22F15');
-        root.style.setProperty('--board-border-color', '#a81e0d');
-      }
-      
-      headerPlayerLabel.textContent = `Player ${playerKey}`;
-      headerPlayerLabel.classList.add('active');
-      
-      btnConfirmSecret.disabled = true;
-      btnConfirmSecret.classList.add('active');
+                renderSecretGrid();
+                showScreen(secretSelectScreen);
+            }
 
-      state.items = TOPICS[topicKey];
-      const len = state.items.length;
-      state.boardOrder = getShuffledIndices(len);
-      state.flipped = new Array(len).fill(false);
-      state.secretIndex = -1;
-      state.secretSelected = false;
+            function renderSecretGrid() {
+                const items = state.items;
+                secretGrid.innerHTML = '';
+                state.boardOrder.forEach((itemIndex, slot) => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.dataset.slot = slot;
+                    const item = items[itemIndex];
+                    card.innerHTML = `<span>${item.emoji}</span><span>${item.name}</span>`;
+                    card.addEventListener('click', () => selectSecret(slot, card));
+                    secretGrid.appendChild(card);
+                });
+            }
 
-      renderSecretGrid();
-      showScreen(secretSelectScreen);
-    }
+            function selectSecret(slot, cardElement) {
+                if (state.secretSelected) {
+                    const prevSelected = secretGrid.querySelector('.card.secret-card');
+                    if (prevSelected) prevSelected.classList.remove('secret-card');
+                }
+                state.secretIndex = state.boardOrder[slot];
+                state.secretSelected = true;
+                cardElement.classList.add('secret-card');
+                btnConfirmSecret.disabled = false;
+            }
 
-    function renderSecretGrid() {
-      const items = state.items;
-      secretGrid.innerHTML = '';
-      state.boardOrder.forEach((itemIndex, slot) => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.dataset.slot = slot;
-        const item = items[itemIndex];
-        card.innerHTML = `<span>${item.emoji}</span><span>${item.name}</span>`;
-        card.addEventListener('click', () => selectSecret(slot, card));
-        secretGrid.appendChild(card);
-      });
-    }
+            btnConfirmSecret.addEventListener('click', () => {
+                if (!state.secretSelected) return;
+                openBoard();
+            });
 
-    function selectSecret(slot, cardElement) {
-      if (state.secretSelected) {
-        const prevSelected = secretGrid.querySelector('.card.secret-card');
-        if (prevSelected) prevSelected.classList.remove('secret-card');
-      }
-      state.secretIndex = state.boardOrder[slot];
-      state.secretSelected = true;
-      cardElement.classList.add('secret-card');
-      btnConfirmSecret.disabled = false;
-    }
+            function openBoard() {
+                btnConfirmSecret.classList.remove('active');
+                renderBoard();
+                showScreen(boardScreen);
+            }
 
-    btnConfirmSecret.addEventListener('click', () => {
-      if (!state.secretSelected) return;
-      openBoard();
-    });
+            function renderBoard() {
+                const items = state.items;
+                boardGrid.innerHTML = '';
+                state.boardOrder.forEach((itemIndex, slot) => {
+                    const isSecret = (itemIndex === state.secretIndex);
+                    const card = document.createElement('div');
+                    card.className =
+                        `card ${state.flipped[slot] ? 'flipped' : ''} ${isSecret ? 'secret-card' : ''}`;
+                    card.dataset.slot = slot;
+                    const item = items[itemIndex];
+                    card.innerHTML = `<span>${item.emoji}</span><span>${item.name}</span>`;
+                    if (!isSecret) {
+                        card.addEventListener('click', () => {
+                            state.flipped[slot] = !state.flipped[slot];
+                            card.classList.toggle('flipped');
+                        });
+                    }
+                    boardGrid.appendChild(card);
+                });
+            }
 
-    // ---------- BOARD PLAY ----------
-    function openBoard() {
-      btnConfirmSecret.classList.remove('active'); // Hide confirm button
-      renderBoard();
-      showScreen(boardScreen);
-    }
-
-    function renderBoard() {
-      const items = state.items;
-      boardGrid.innerHTML = '';
-      state.boardOrder.forEach((itemIndex, slot) => {
-        const isSecret = (itemIndex === state.secretIndex);
-        const card = document.createElement('div');
-        card.className = `card ${state.flipped[slot] ? 'flipped' : ''} ${isSecret ? 'secret-card' : ''}`;
-        card.dataset.slot = slot;
-        const item = items[itemIndex];
-        card.innerHTML = `<span>${item.emoji}</span><span>${item.name}</span>`;
-        if (!isSecret) {
-          card.addEventListener('click', () => {
-            state.flipped[slot] = !state.flipped[slot];
-            card.classList.toggle('flipped');
-          });
-        }
-        boardGrid.appendChild(card);
-      });
-    }
-
-    homeButton.addEventListener('click', () => {
-      resetGameState();
-      showScreen(menuScreen);
-    });
-
-  })();
-</script>
+            homeButton.addEventListener('click', () => {
+                resetGameState();
+                showScreen(menuScreen);
+            });
+        })();
+    </script>
 </body>
 </html>
